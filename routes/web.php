@@ -7,7 +7,6 @@ use App\Livewire\ContactShow;
 use App\Livewire\ViewContact;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function(){
+Route::get('/', function () {
     view('welcome');
 })->name('home');
-
