@@ -23,7 +23,6 @@ class OrderResource extends Resource
     {
         return $form
             ->schema([
-                //
                 
             ]);
     }
