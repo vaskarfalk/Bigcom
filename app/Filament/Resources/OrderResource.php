@@ -6,6 +6,11 @@ use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
 use Filament\Forms;
+use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -23,7 +28,59 @@ class OrderResource extends Resource
     {
         return $form
             ->schema([
-                
+                Group::make([
+                    Section::make('Order Infomation')->schema([
+                        Select::make('user_id')->searchable()->preload()->required()->relationship('user', 'name')->label('Customer'),
+                        Select::make('peyment_method')->options([
+                            'cash' => 'Cash',
+                            'paypal' => 'Paypal',
+                            'stripe' => 'Stripe',
+                        ])->required(),
+
+                        Select::make('payment_status')->options([
+                            'pending' => 'Pending',
+                            'paid' => 'Paid',
+                            'failed' => 'Failed',
+                        ])->required()->default('pending'),
+
+                        ToggleButtons::make('status')->options([
+                            'new' => 'New',
+                            'processing' => 'Processing',
+                            'shipped' => 'Shipped',
+                            'delivered' => 'Delivered',
+                            'canceled' => 'Canceled',
+                        ])->required()->inline()->default('new')->colors([
+                            'new' => 'info',
+                            'processing' => 'warning',
+                            'shipped' => 'success',
+                            'delivered' => 'success',
+                            'canceled' => 'danger',
+                        ])->icons([
+                            'new' => 'heroicon-m-sparkles',
+                            'processing' => 'heroicon-m-clock',
+                            'shipped' => 'heroicon-m-truck',
+                            'delivered' => 'heroicon-m-check',
+                            'canceled' => 'heroicon-m-x-circle',
+                        ]),
+
+                        Select::make('currency')->options([
+                            'usd' => '$',
+                            'eur' => '€',
+                            'gbp' => '£',
+                        ])->required()->default('usd'),
+
+                        Select::make('shipping_method')->options([
+                            'free' => 'Free',
+                            'standard' => 'Standard',
+                            'express' => 'Express',
+                        ])->required()->default('free'),
+
+                        Textarea::make('notes')->nullable()->default(null)->rows(3)->columnSpanFull(),
+
+                    ])->columns(2),
+
+                ])->columnSpanFull(),
+
             ]);
     }
 
