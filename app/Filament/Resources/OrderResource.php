@@ -7,9 +7,12 @@ use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
 use Filament\Forms;
 use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -78,6 +81,27 @@ class OrderResource extends Resource
                         Textarea::make('notes')->nullable()->default(null)->rows(3)->columnSpanFull(),
 
                     ])->columns(2),
+
+                    Section::make()->schema([
+                        Repeater::make('orderItems')->relationship()->required()->schema([
+                            Select::make('product_id')->searchable()->preload()->required()->relationship('product', 'name')->label('Product')->disableOptionsWhenSelectedInSiblingRepeaterItems()->columnSpan(4)->reactive()->afterStateUpdated(function ($state, callable $set) {
+                                $product = \App\Models\Product::find($state);
+                                if ($product) {
+                                    $set('unit_amount', number_format($product->price, 2));
+                                    $set('total_amount', number_format($product->price, 2));
+                                }
+                            }),
+                            TextInput::make('quantity')->required()->columnSpan(2)->default(1)->minValue(1)->numeric() ->reactive()
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $unitAmount = $get('unit_amount');
+                                $totalAmount = $state * $unitAmount;
+                                $set('total_amount', number_format($totalAmount, 2));
+                            }),
+                            TextInput::make('unit_amount')->required()->columnSpan(3)->default(0)->minValue(0)->numeric()->disabled()->dehydrated(),
+                            TextInput::make('total_amount')->required()->columnSpan(3)->default(0)->minValue(0)->numeric(),
+
+                        ])->columns(12)
+                    ])
 
                 ])->columnSpanFull(),
 
